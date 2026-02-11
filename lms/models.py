@@ -1,4 +1,7 @@
+from tkinter.constants import CASCADE
+
 from django.db import models
+
 
 class Course(models.Model):
     """
@@ -14,9 +17,11 @@ class Course(models.Model):
         verbose_name="Название",
         help_text="Название курса",
     )
+
     description = models.TextField(
         blank=True, null=True, verbose_name="Описание", help_text="Описание курса"
     )
+
     preview = models.ImageField(
         upload_to="lms/courses/preview/",
         blank=True,
@@ -25,7 +30,6 @@ class Course(models.Model):
         help_text="Загрузите картинку",
     )
 
-
     class Meta:
         verbose_name = "курс"
         verbose_name_plural = "курсы"
@@ -33,4 +37,46 @@ class Course(models.Model):
     def __str__(self):
         return self.name
 
-# Урок:    название,    описание,    превью(картинка),    ссылка    на    видео.
+
+class Lesson(models.Model):
+    """
+    Модель урока.
+    Поля: название, описание, превью, ссылка на видео, курс (к которому относится урок).
+    """
+
+    name = models.CharField(
+        max_length=150,
+        blank=False,
+        null=False,
+        verbose_name="Название",
+        help_text="Название урока",
+    )
+
+    description = models.TextField(
+        blank=True, null=True, verbose_name="Описание", help_text="Описание урока"
+    )
+
+    preview = models.ImageField(
+        upload_to="lms/lessons/preview/",
+        blank=True,
+        null=True,
+        verbose_name="Превью",
+        help_text="Загрузите картинку",
+    )
+
+    video_link = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Ссылка на видео",
+        help_text="Вставьте ссылку на видео урока",
+    )
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
+
+    class Meta:
+        verbose_name = "урок"
+        verbose_name_plural = "уроки"
+
+    def __str__(self):
+        return self.name
