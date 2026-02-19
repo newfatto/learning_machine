@@ -135,3 +135,11 @@ class Payment(models.Model):
         verbose_name='Способ платежа',
         help_text='Укажите способ совершения платежа',
     )
+
+    class Meta:
+        verbose_name = "платёж"
+        verbose_name_plural = "платежи"
+
+    def __str__(self):
+        item = self.course or self.lesson
+        return f"{self.user.email} — {item} — {self.payment}₽"
