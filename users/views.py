@@ -1,14 +1,18 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, viewsets
 from rest_framework.filters import OrderingFilter
-from rest_framework import viewsets, generics
 
-from users.models import User, Payment
-from users.serializers import UserSerializer, PaymentSerializer
+from users.models import Payment, User
+from users.serializers import PaymentSerializer, UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
     queryset = User.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return UserSerializer
+        return UserSerializer
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
