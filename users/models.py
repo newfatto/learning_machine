@@ -92,48 +92,45 @@ class User(AbstractUser):
 
 class Payment(models.Model):
     PAY_CHOICES = [
-        ('cash', 'наличные'),
-        ('transfer', 'перевод на счёт'),
+        ("cash", "наличные"),
+        ("transfer", "перевод на счёт"),
     ]
 
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-        help_text='Пользователь',
-        related_name='payments'
+        verbose_name="Пользователь",
+        help_text="Пользователь",
+        related_name="payments",
     )
-    payment_date = models.DateField(
-        auto_now_add=True,
-        verbose_name='Дата платежа'
-    )
+    payment_date = models.DateField(auto_now_add=True, verbose_name="Дата платежа")
     course = models.ForeignKey(
         Course,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name='Курс',
-        related_name='payments'
+        verbose_name="Курс",
+        related_name="payments",
     )
     lesson = models.ForeignKey(
         Lesson,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name='Урок',
-        related_name='payments'
+        verbose_name="Урок",
+        related_name="payments",
     )
     payment = models.PositiveIntegerField(
         validators=[MinValueValidator(1)],
-        verbose_name='Сумма платежа',
-        help_text='Введите сумму платежа',
+        verbose_name="Сумма платежа",
+        help_text="Введите сумму платежа",
     )
     payment_way = models.CharField(
         max_length=10,
         choices=PAY_CHOICES,
-        default='cash',
-        verbose_name='Способ платежа',
-        help_text='Укажите способ совершения платежа',
+        default="cash",
+        verbose_name="Способ платежа",
+        help_text="Укажите способ совершения платежа",
     )
 
     class Meta:

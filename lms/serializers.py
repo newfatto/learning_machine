@@ -2,11 +2,13 @@ from rest_framework import serializers
 
 from lms.models import Course, Lesson
 
+
 class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lesson
         fields = "__all__"
+
 
 class CourseSerializer(serializers.ModelSerializer):
 
@@ -25,12 +27,4 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = (
-            "name",
-            "description",
-            "lesson_count",
-            "lessons"
-        )
-
-
-
+        fields = ("name", "description", "lesson_count", "lessons")
