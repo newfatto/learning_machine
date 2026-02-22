@@ -1,6 +1,9 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator
 from django.db import models
+
+from lms.models import Course, Lesson
 
 
 class UserManager(BaseUserManager):
@@ -86,3 +89,55 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+class Payment(models.Model):
+    PAY_CHOICES = [
+        ("cash", "наличные"),
+        ("transfer", "перевод на счёт"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        help_text="Пользователь",
+        related_name="payments",
+    )
+    payment_date = models.DateField(auto_now_add=True, verbose_name="Дата платежа")
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Курс",
+        related_name="payments",
+    )
+    lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Урок",
+        related_name="payments",
+    )
+    payment = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name="Сумма платежа",
+        help_text="Введите сумму платежа",
+    )
+    payment_way = models.CharField(
+        max_length=10,
+        choices=PAY_CHOICES,
+        default="cash",
+        verbose_name="Способ платежа",
+        help_text="Укажите способ совершения платежа",
+    )
+
+    class Meta:
+        verbose_name = "платёж"
+        verbose_name_plural = "платежи"
+
+    def __str__(self):
+        item = self.course or self.lesson
+        return f"{self.user.email} — {item} — {self.payment}₽"
