@@ -4,8 +4,9 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.models import Payment, User
+from users.permissions import IsSelf
 from users.serializers import (PaymentSerializer, UserCreateSerializer,
-                               UserSerializer)
+                               UserPublicSerializer, UserSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -14,15 +15,30 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "create":
             return UserCreateSerializer
-        return UserSerializer
+
+        elif self.action == "retrieve":
+            if self.get_object() == self.request.user:
+                return UserSerializer
+            return UserPublicSerializer
+
+        elif self.action in ["update", "partial_update"]:
+            return UserSerializer
+
+        return UserPublicSerializer
 
     def get_permissions(self):
         if self.action == "create":
-            self.permission_classes = [
-                AllowAny,
-            ]
+            self.permission_classes = [AllowAny]
+
+        elif self.action == "retrieve":
+            self.permission_classes = [IsAuthenticated]
+
+        elif self.action in ["update", "partial_update", "destroy"]:
+            self.permission_classes = [IsAuthenticated, IsSelf]
+
         else:
             self.permission_classes = [IsAuthenticated]
+
         return super().get_permissions()
 
 

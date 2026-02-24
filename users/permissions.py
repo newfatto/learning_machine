@@ -8,7 +8,11 @@ class IsModer(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user.groups.filter(name="moderators").exists()
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.groups.filter(name="moderators").exists()
+        )
 
 
 class IsOwner(permissions.BasePermission):
@@ -18,3 +22,12 @@ class IsOwner(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj.owner == request.user
+
+
+class IsSelf(permissions.BasePermission):
+    """Разрешает изменять профиль только самому пользователю."""
+
+    def has_object_permission(self, request, view, obj):
+        return bool(
+            request.user and request.user.is_authenticated and obj == request.user
+        )

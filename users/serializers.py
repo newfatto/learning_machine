@@ -39,6 +39,22 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
 
+class UserPublicSerializer(serializers.ModelSerializer):
+    """Публичная информация профиля (для просмотра чужих профилей)."""
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "phone",
+            "city",
+            "avatar",
+            "courses",
+            "lessons",
+        )
+        read_only_fields = fields
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для регистрации пользователя."""
 
