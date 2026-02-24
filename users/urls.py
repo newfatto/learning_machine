@@ -17,8 +17,15 @@ router.register(r"user", UserViewSet, basename="user")
 
 urlpatterns = [
     path("login/", TokenObtainPairView.as_view(), name="login"),
-    path("token/refresh/", TokenRefreshView.as_view(permission_classes = [AllowAny,]), name="refresh_token"),
-
+    path(
+        "token/refresh/",
+        TokenRefreshView.as_view(
+            permission_classes=[
+                AllowAny,
+            ]
+        ),
+        name="refresh_token",
+    ),
     path("payment/create/", PaymentCreateAPIView.as_view(), name="payment-create"),
     path("payments/", PaymentListAPIView.as_view(), name="payment-list"),
     path("payment/<int:pk>/", PaymentRetrieveAPIView.as_view(), name="payment-get"),

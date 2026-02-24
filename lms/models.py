@@ -1,4 +1,5 @@
 from django.db import models
+
 from config import settings
 
 
@@ -34,8 +35,8 @@ class Course(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name='Автор',
-        related_name='courses'
+        verbose_name="Автор",
+        related_name="courses",
     )
 
     class Meta:
@@ -87,8 +88,8 @@ class Lesson(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
-        verbose_name='Автор',
-        related_name='lessons'
+        verbose_name="Автор",
+        related_name="lessons",
     )
 
     class Meta:

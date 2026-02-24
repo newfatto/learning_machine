@@ -3,7 +3,7 @@ from rest_framework import generics, viewsets
 from lms.models import Course, Lesson
 from lms.serializers import (CourseDetailSerializer, CourseSerializer,
                              LessonSerializer)
-from lms.permissions import IsModer
+from users.permissions import IsModer
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -19,26 +19,17 @@ class CourseViewSet(viewsets.ModelViewSet):
         course.owner = self.request.user
         course.save()
 
-    # def get_permissions(self)
-    #     if self.action == 'list':
-    #         self.permission_classes = [список пермишенов для этого эндпоинта]
-    #     elif self.action == 'create':
-    #         self.permission_classes = [список пермишенов для этого эндпоинта]
-    #     elif self.action == 'retrieve':
-    #         self.permission_classes = [список пермишенов для этого эндпоинта]
-    #     elif self.action == 'update':
-    #         self.permission_classes = [список пермишенов для этого эндпоинта]
-    #     elif self.action == 'partial_update':
-    #         self.permission_classes = [список пермишенов для этого эндпоинта]
-    #     elif self.action == 'destroy':
-    #         self.permission_classes = [список пермишенов для этого эндпоинта]
-    #     return [permission() for permission in self.permission_classes]
-
-
+    def get_permissions(self):
+        if self.action in ["create", "destroy"]:
+            self.permission_classes = [~IsModer]
+        elif self.action in ["retrieve", "update", "partial_update"]:
+            self.permission_classes = [IsModer]
+        return super().get_permissions()
 
 
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
+    permission_classes = [~IsModer]
 
     def perform_create(self, serializer):
         course = serializer.save()
@@ -59,7 +50,9 @@ class LessonRetrieveAPIView(generics.RetrieveAPIView):
 class LessonUpdateAPIView(generics.UpdateAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
+    permission_classes = [IsModer]
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
     queryset = Lesson.objects.all()
+    permission_classes = [~IsModer]

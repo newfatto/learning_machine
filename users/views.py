@@ -18,7 +18,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == "create":
-            self.permission_classes = [AllowAny,]
+            self.permission_classes = [
+                AllowAny,
+            ]
         else:
             self.permission_classes = [IsAuthenticated]
         return super().get_permissions()
