@@ -27,4 +27,46 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = "__all__"
+        fields = (
+            "id",
+            "email",
+            "phone",
+            "city",
+            "avatar",
+            "payments",
+            "courses",
+            "lessons",
+        )
+
+
+class UserPublicSerializer(serializers.ModelSerializer):
+    """Публичная информация профиля (для просмотра чужих профилей)."""
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "phone",
+            "city",
+            "avatar",
+            "courses",
+            "lessons",
+        )
+        read_only_fields = fields
+
+
+class UserCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для регистрации пользователя."""
+
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ("id", "email", "password", "phone", "city", "avatar")
+
+    def create(self, validated_data: dict) -> User:
+        """
+        Создаёт пользователя через менеджер, чтобы пароль сохранился в хэшированном виде.
+        """
+        password = validated_data.pop("password")
+        return User.objects.create_user(password=password, **validated_data)
