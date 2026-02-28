@@ -2,6 +2,7 @@ from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from lms.models import Course, Lesson
+from lms.paginators import CoursePaginator
 from lms.serializers import CourseDetailSerializer, CourseSerializer, LessonSerializer
 from users.permissions import IsModer, IsOwner
 
@@ -16,6 +17,8 @@ class CourseViewSet(viewsets.ModelViewSet):
     - Просмотр списка/деталей:
     - модераторы видят все курсы, остальные — только свои (через get_queryset()).
     """
+
+    pagination_class = CoursePaginator
 
     def get_queryset(self):
         """
