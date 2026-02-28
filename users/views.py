@@ -5,8 +5,12 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from users.models import Payment, User
 from users.permissions import IsSelf
-from users.serializers import (PaymentSerializer, UserCreateSerializer,
-                               UserPublicSerializer, UserSerializer)
+from users.serializers import (
+    PaymentSerializer,
+    UserCreateSerializer,
+    UserPublicSerializer,
+    UserSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
