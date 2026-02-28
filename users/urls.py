@@ -11,7 +11,7 @@ from users.views import (
     PaymentListAPIView,
     PaymentRetrieveAPIView,
     PaymentUpdateAPIView,
-    UserViewSet,
+    UserViewSet, SubscriptionAPIView,
 )
 
 app_name = UsersConfig.name
@@ -43,4 +43,6 @@ urlpatterns = [
         PaymentDestroyAPIView.as_view(),
         name="payment-delete",
     ),
+
+    path("subscriptions/", SubscriptionAPIView.as_view(), name = "subscriptions"),
 ] + router.urls
