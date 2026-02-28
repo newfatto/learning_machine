@@ -141,3 +141,34 @@ class Payment(models.Model):
     def __str__(self):
         item = self.course or self.lesson
         return f"{self.user.email} — {item} — {self.payment}₽"
+
+
+class Subscription(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        related_name="subscriptions",
+    )
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name="Курс",
+        related_name="subscriptions",
+    )
+
+    class Meta:
+        verbose_name = "подписка"
+        verbose_name_plural = "подписки"
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "course"],
+                name="unique_user_course_subscription"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.user} — {self.course}"
