@@ -1,6 +1,7 @@
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404
 from pyexpat.errors import messages
+
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, viewsets
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -8,15 +9,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from lms.models import Course
-from users.models import Payment, User, Subscription
+from users.models import Payment, Subscription, User
 from users.permissions import IsSelf
-from users.serializers import (
-    PaymentSerializer,
-    UserCreateSerializer,
-    UserPublicSerializer,
-    UserSerializer,
-    SubscriptionSerializer,
-)
+from users.serializers import (PaymentSerializer, SubscriptionSerializer,
+                               UserCreateSerializer, UserPublicSerializer,
+                               UserSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -50,6 +47,7 @@ class UserViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsAuthenticated]
 
         return super().get_permissions()
+
 
 class PaymentCreateAPIView(generics.CreateAPIView):
     serializer_class = PaymentSerializer
@@ -87,30 +85,28 @@ class SubscriptionAPIView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
-        subscriptions = (Subscription.objects
-                         .filter(user=request.user)
-                         .select_related('course'))
+        subscriptions = Subscription.objects.filter(user=request.user).select_related(
+            "course"
+        )
         serializer = SubscriptionSerializer(subscriptions, many=True)
         return Response(serializer.data)
 
-    def post(self,request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         user = request.user
-        course = request.data.get('course')
-        course_item = get_object_or_404(Course, id=course)
+        course = request.data.get("course")
 
         if not course:
-            return Response({"detail": "Поле course_id обязательно."}, status=400)
+            return Response({"detail": "Поле course обязательно."}, status=400)
 
-        subs_qs = Subscription.objects.filter(
-            user=user,
-            course=course_item
-        )
+        course_item = get_object_or_404(Course, id=course)
+
+        subs_qs = Subscription.objects.filter(user=user, course=course_item)
 
         if subs_qs.exists():
             subs_qs.delete()
-            message = 'Подписка удалена'
+            message = "Подписка удалена"
         else:
             Subscription.objects.create(user=user, course=course_item)
-            message = 'Подписка добавлена'
+            message = "Подписка добавлена"
 
         return Response({"message": message})

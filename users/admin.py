@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Payment, User, Subscription
+from .models import Payment, Subscription, User
 
 
 @admin.register(User)
@@ -18,6 +18,7 @@ class PaymentAdmin(admin.ModelAdmin):
         "payment",
         "payment_way",
     )
+
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):

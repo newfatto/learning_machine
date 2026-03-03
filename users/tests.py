@@ -5,7 +5,6 @@ from rest_framework.test import APITestCase
 from lms.models import Course
 from users.models import Subscription
 
-
 User = get_user_model()
 
 
@@ -58,7 +57,9 @@ class SubscriptionTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response_add.status_code, status.HTTP_200_OK)
-        self.assertTrue(Subscription.objects.filter(user=self.user, course=course).exists())
+        self.assertTrue(
+            Subscription.objects.filter(user=self.user, course=course).exists()
+        )
 
         # подписка удалена
         response_del = self.client.post(
@@ -67,7 +68,9 @@ class SubscriptionTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response_del.status_code, status.HTTP_200_OK)
-        self.assertFalse(Subscription.objects.filter(user=self.user, course=course).exists())
+        self.assertFalse(
+            Subscription.objects.filter(user=self.user, course=course).exists()
+        )
 
     def test_subscription_list(self) -> None:
         """GET возвращает список подписок текущего пользователя."""

@@ -5,7 +5,6 @@ from rest_framework.test import APITestCase
 
 from lms.models import Course, Lesson
 
-
 User = get_user_model()
 
 
@@ -60,7 +59,9 @@ class LessonCRUDTestCase(APITestCase):
         response = self.client.post(self.create_url, data=data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue(Lesson.objects.filter(name="New lesson", owner=self.owner).exists())
+        self.assertTrue(
+            Lesson.objects.filter(name="New lesson", owner=self.owner).exists()
+        )
 
     def test_lesson_create_moder_403(self) -> None:
         """Модератор не может создавать уроки."""

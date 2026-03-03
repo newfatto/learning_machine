@@ -81,11 +81,7 @@ class Lesson(models.Model):
         help_text="Вставьте ссылку на видео урока",
     )
 
-    course = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name="lessons"
-    )
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
