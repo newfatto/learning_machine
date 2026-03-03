@@ -31,7 +31,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
         return obj.lessons.count()
 
     def get_is_subscribe(self, obj):
-        request = self.context.get('request')
+        request = self.context.get("request")
         if request is None or request.user.is_anonymous:
             return False
 

@@ -165,8 +165,7 @@ class Subscription(models.Model):
 
         constraints = [
             models.UniqueConstraint(
-                fields=["user", "course"],
-                name="unique_user_course_subscription"
+                fields=["user", "course"], name="unique_user_course_subscription"
             )
         ]
 

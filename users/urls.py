@@ -2,17 +2,14 @@ from django.urls import path
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 
 from users.apps import UsersConfig
-from users.views import (
-    PaymentCreateAPIView,
-    PaymentDestroyAPIView,
-    PaymentListAPIView,
-    PaymentRetrieveAPIView,
-    PaymentUpdateAPIView,
-    UserViewSet, SubscriptionAPIView,
-)
+from users.views import (PaymentCreateAPIView, PaymentDestroyAPIView,
+                         PaymentListAPIView, PaymentRetrieveAPIView,
+                         PaymentUpdateAPIView, SubscriptionAPIView,
+                         UserViewSet)
 
 app_name = UsersConfig.name
 
@@ -43,6 +40,5 @@ urlpatterns = [
         PaymentDestroyAPIView.as_view(),
         name="payment-delete",
     ),
-
-    path("subscriptions/", SubscriptionAPIView.as_view(), name = "subscriptions"),
+    path("subscriptions/", SubscriptionAPIView.as_view(), name="subscriptions"),
 ] + router.urls
