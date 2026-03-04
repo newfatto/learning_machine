@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from config import settings
@@ -37,6 +38,14 @@ class Course(models.Model):
         blank=True,
         verbose_name="Автор",
         related_name="courses",
+    )
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Цена",
+        help_text="Стоимость курса"
     )
 
     class Meta:
