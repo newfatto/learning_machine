@@ -3,8 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from lms.models import Course, Lesson
 from lms.paginators import CoursePaginator, LessonPaginator
-from lms.serializers import (CourseDetailSerializer, CourseSerializer,
-                             LessonSerializer)
+from lms.serializers import CourseDetailSerializer, CourseSerializer, LessonSerializer
 from users.permissions import IsModer, IsOwner
 
 

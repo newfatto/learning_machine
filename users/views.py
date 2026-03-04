@@ -11,9 +11,13 @@ from rest_framework.views import APIView
 from lms.models import Course
 from users.models import Payment, Subscription, User
 from users.permissions import IsSelf
-from users.serializers import (PaymentSerializer, SubscriptionSerializer,
-                               UserCreateSerializer, UserPublicSerializer,
-                               UserSerializer)
+from users.serializers import (
+    PaymentSerializer,
+    SubscriptionSerializer,
+    UserCreateSerializer,
+    UserPublicSerializer,
+    UserSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
