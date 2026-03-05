@@ -40,12 +40,10 @@ class Course(models.Model):
         related_name="courses",
     )
 
-    price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
+    price = models.PositiveIntegerField(
         default=0,
         verbose_name="Цена",
-        help_text="Стоимость курса"
+        help_text="Стоимость урока"
     )
 
     class Meta:
@@ -72,6 +70,12 @@ class Lesson(models.Model):
 
     description = models.TextField(
         blank=True, null=True, verbose_name="Описание", help_text="Описание урока"
+    )
+
+    price = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Цена",
+        help_text="Стоимость урока"
     )
 
     preview = models.ImageField(

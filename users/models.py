@@ -124,7 +124,6 @@ class Payment(models.Model):
         related_name="payments",
     )
     amount = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)],
         verbose_name="Сумма платежа",
         help_text="Введите сумму платежа",
     )
@@ -137,7 +136,7 @@ class Payment(models.Model):
     )
 
     session_id = models.CharField(
-        max_length=50,
+        max_length=100,
         blank=True,
         null=True,
         verbose_name='id сессии',
@@ -145,7 +144,7 @@ class Payment(models.Model):
     )
 
     link = models.URLField(
-        max_length=400,
+        max_length=500,
         blank=True,
         null=True,
         verbose_name='Ссылка на оплату',
