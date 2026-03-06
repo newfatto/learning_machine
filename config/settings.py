@@ -116,8 +116,7 @@ SIMPLE_JWT = {
 }
 
 
+STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
 
-STRIPE_API_KEY = os.getenv('STRIPE_API_KEY')
-
-STRIPE_SUCCESS_URL = 'https://ya.ru/'
-STRIPE_CANCEL_URL = 'http://127.0.0.1:8000/'
+STRIPE_SUCCESS_URL = "https://ya.ru/"
+STRIPE_CANCEL_URL = "http://127.0.0.1:8000/"

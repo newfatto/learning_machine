@@ -1,7 +1,9 @@
 import stripe
-from config.settings import STRIPE_API_KEY,DATABASES
+
+from config.settings import DATABASES, STRIPE_API_KEY
 
 stripe.api_key = STRIPE_API_KEY
+
 
 def create_stripe_product(name: str) -> stripe.Product:
     """Создаёт продукт в stripe"""
@@ -12,12 +14,14 @@ def create_stripe_price(amount: int, product_id: str) -> stripe.Price:
     """Создаёт цену в stripe"""
     return stripe.Price.create(
         currency="rub",
-        unit_amount=amount*100,
+        unit_amount=amount * 100,
         product=product_id,
     )
 
 
-def create_stripe_session(price_id: str, success_url: str, cancel_url: str) -> stripe.checkout.Session:
+def create_stripe_session(
+    price_id: str, success_url: str, cancel_url: str
+) -> stripe.checkout.Session:
     """
     Создать Checkout Session в Stripe.
     """
@@ -29,3 +33,9 @@ def create_stripe_session(price_id: str, success_url: str, cancel_url: str) -> s
         mode="payment",
     )
 
+
+def retrieve_stripe_session(session_id: str) -> stripe.checkout.Session:
+    """
+    Получить данные Stripe-сессии по её id.
+    """
+    return stripe.checkout.Session.retrieve(session_id)

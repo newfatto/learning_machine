@@ -41,9 +41,7 @@ class Course(models.Model):
     )
 
     price = models.PositiveIntegerField(
-        default=0,
-        verbose_name="Цена",
-        help_text="Стоимость урока"
+        default=0, verbose_name="Цена", help_text="Стоимость урока"
     )
 
     class Meta:
@@ -73,9 +71,7 @@ class Lesson(models.Model):
     )
 
     price = models.PositiveIntegerField(
-        default=0,
-        verbose_name="Цена",
-        help_text="Стоимость урока"
+        default=0, verbose_name="Цена", help_text="Стоимость урока"
     )
 
     preview = models.ImageField(

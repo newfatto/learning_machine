@@ -141,16 +141,24 @@ class Payment(models.Model):
         max_length=100,
         blank=True,
         null=True,
-        verbose_name='id сессии',
-        help_text='Укажите id сессии'
+        verbose_name="id сессии",
+        help_text="Укажите id сессии",
     )
 
     link = models.URLField(
         max_length=500,
         blank=True,
         null=True,
-        verbose_name='Ссылка на оплату',
-        help_text='Укажите ссылку на оплату'
+        verbose_name="Ссылка на оплату",
+        help_text="Укажите ссылку на оплату",
+    )
+
+    status = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Статус платежа",
+        help_text="Статус платежа в Stripe",
     )
 
     class Meta:
