@@ -2,12 +2,12 @@ from config import settings
 
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError
 
 from lms.models import Course
 from users.models import Payment, Subscription, User
@@ -17,7 +17,7 @@ from users.serializers import (
     SubscriptionSerializer,
     UserCreateSerializer,
     UserPublicSerializer,
-    UserSerializer,
+    UserSerializer, PaymentCreateSerializer,
 )
 from users.services import create_stripe_product, create_stripe_price, create_stripe_session
 
@@ -56,16 +56,15 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
-    serializer_class = PaymentSerializer
+    serializer_class = PaymentCreateSerializer
     queryset = Payment.objects.all()
 
-    def perform_create(self, serializer: PaymentSerializer) -> None:
+    def perform_create(self, serializer) -> None:
         payment = serializer.save(user=self.request.user, payment_way="transfer")
+        course = payment.course
 
-        item = payment.course or payment.lesson
-
-        product = create_stripe_product(name=item.name)
-        price = create_stripe_price(amount=payment.amount, product_id=product["id"])
+        product = create_stripe_product(name=course.name)
+        price = create_stripe_price(amount=course.price, product_id=product["id"])
 
         session = create_stripe_session(
             price_id=price["id"],
@@ -75,7 +74,7 @@ class PaymentCreateAPIView(generics.CreateAPIView):
 
         payment.session_id = session["id"]
         payment.link = session["url"]
-        payment.save(update_fields=["session_id", "link"])
+        payment.save()
 
 
 class PaymentListAPIView(generics.ListAPIView):

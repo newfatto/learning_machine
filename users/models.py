@@ -126,6 +126,8 @@ class Payment(models.Model):
     amount = models.PositiveIntegerField(
         verbose_name="Сумма платежа",
         help_text="Введите сумму платежа",
+        null=True,
+        blank=True,
     )
     payment_way = models.CharField(
         max_length=10,
