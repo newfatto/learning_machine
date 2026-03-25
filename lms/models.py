@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from config import settings
@@ -39,6 +40,10 @@ class Course(models.Model):
         related_name="courses",
     )
 
+    price = models.PositiveIntegerField(
+        default=0, verbose_name="Цена", help_text="Стоимость урока"
+    )
+
     class Meta:
         verbose_name = "курс"
         verbose_name_plural = "курсы"
@@ -63,6 +68,10 @@ class Lesson(models.Model):
 
     description = models.TextField(
         blank=True, null=True, verbose_name="Описание", help_text="Описание урока"
+    )
+
+    price = models.PositiveIntegerField(
+        default=0, verbose_name="Цена", help_text="Стоимость урока"
     )
 
     preview = models.ImageField(

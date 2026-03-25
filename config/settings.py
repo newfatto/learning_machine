@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "rest_framework_simplejwt",
+    "drf_yasg",
     "users",
     "lms",
 ]
@@ -113,3 +114,9 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=120),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
+
+STRIPE_API_KEY = os.getenv("STRIPE_API_KEY")
+
+STRIPE_SUCCESS_URL = "https://ya.ru/"
+STRIPE_CANCEL_URL = "http://127.0.0.1:8000/"

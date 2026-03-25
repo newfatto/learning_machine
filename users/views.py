@@ -1,19 +1,21 @@
-from pyexpat.errors import messages
-
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, viewsets
+from rest_framework import generics, status, viewsets
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from config import settings
 from lms.models import Course
 from users.models import Payment, Subscription, User
 from users.permissions import IsSelf
-from users.serializers import (PaymentSerializer, SubscriptionSerializer,
-                               UserCreateSerializer, UserPublicSerializer,
-                               UserSerializer)
+from users.serializers import (PaymentCreateSerializer, PaymentSerializer,
+                               SubscriptionSerializer, UserCreateSerializer,
+                               UserPublicSerializer, UserSerializer)
+from users.services import (create_stripe_price, create_stripe_product,
+                            create_stripe_session, retrieve_stripe_session)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -50,7 +52,25 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class PaymentCreateAPIView(generics.CreateAPIView):
-    serializer_class = PaymentSerializer
+    serializer_class = PaymentCreateSerializer
+    queryset = Payment.objects.all()
+
+    def perform_create(self, serializer) -> None:
+        payment = serializer.save(user=self.request.user, payment_way="transfer")
+        course = payment.course
+
+        product = create_stripe_product(name=course.name)
+        price = create_stripe_price(amount=course.price, product_id=product["id"])
+
+        session = create_stripe_session(
+            price_id=price["id"],
+            success_url=settings.STRIPE_SUCCESS_URL,
+            cancel_url=settings.STRIPE_CANCEL_URL,
+        )
+
+        payment.session_id = session["id"]
+        payment.link = session["url"]
+        payment.save()
 
 
 class PaymentListAPIView(generics.ListAPIView):
@@ -73,6 +93,26 @@ class PaymentUpdateAPIView(generics.UpdateAPIView):
 
 class PaymentDestroyAPIView(generics.DestroyAPIView):
     queryset = Payment.objects.all()
+
+
+class PaymentStatusAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, pk: int, *args, **kwargs):
+        payment = get_object_or_404(Payment, pk=pk)
+
+        session = retrieve_stripe_session(payment.session_id)
+        payment.status = session.get("payment_status")
+        payment.save(update_fields=["status"])
+
+        return Response(
+            {
+                "payment_id": payment.id,
+                "session_id": payment.session_id,
+                "status": payment.status,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class SubscriptionAPIView(APIView):

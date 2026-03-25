@@ -99,9 +99,11 @@ class Payment(models.Model):
 
     user = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         verbose_name="Пользователь",
-        help_text="Пользователь",
+        help_text="Укажите пользователя",
         related_name="payments",
     )
     payment_date = models.DateField(auto_now_add=True, verbose_name="Дата платежа")
@@ -121,10 +123,11 @@ class Payment(models.Model):
         verbose_name="Урок",
         related_name="payments",
     )
-    payment = models.PositiveIntegerField(
-        validators=[MinValueValidator(1)],
+    amount = models.PositiveIntegerField(
         verbose_name="Сумма платежа",
         help_text="Введите сумму платежа",
+        null=True,
+        blank=True,
     )
     payment_way = models.CharField(
         max_length=10,
@@ -134,13 +137,37 @@ class Payment(models.Model):
         help_text="Укажите способ совершения платежа",
     )
 
+    session_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name="id сессии",
+        help_text="Укажите id сессии",
+    )
+
+    link = models.URLField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name="Ссылка на оплату",
+        help_text="Укажите ссылку на оплату",
+    )
+
+    status = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Статус платежа",
+        help_text="Статус платежа в Stripe",
+    )
+
     class Meta:
         verbose_name = "платёж"
         verbose_name_plural = "платежи"
 
     def __str__(self):
         item = self.course or self.lesson
-        return f"{self.user.email} — {item} — {self.payment}₽"
+        return f"{self.user.email} — {item} — {self.amount}₽"
 
 
 class Subscription(models.Model):

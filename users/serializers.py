@@ -1,5 +1,8 @@
+from typing import Any
+
 from rest_framework import serializers
 
+from lms.models import Course, Lesson
 from users.models import Payment, Subscription, User
 
 
@@ -12,13 +15,24 @@ class PaymentSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "payment_date",
-            "payment",
+            "amount",
             "payment_way",
             "course",
             "lesson",
             "course_name",
             "lesson_name",
+            "session_id",
+            "link",
+            "status",
         )
+        read_only_fields = fields
+
+
+class PaymentCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Payment
+        fields = "__all__"
 
 
 class UserSerializer(serializers.ModelSerializer):
