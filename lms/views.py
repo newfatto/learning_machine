@@ -3,8 +3,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from lms.models import Course, Lesson
 from lms.paginators import CoursePaginator, LessonPaginator
-from lms.serializers import (CourseDetailSerializer, CourseSerializer,
-                             LessonSerializer)
+from lms.serializers import CourseDetailSerializer, CourseSerializer, LessonSerializer
+from lms.tasks import send_course_update_email_task
 from users.permissions import IsModer, IsOwner
 
 
@@ -48,6 +48,13 @@ class CourseViewSet(viewsets.ModelViewSet):
         При создании курса автоматически проставляет владельца текущим пользователем.
         """
         serializer.save(owner=self.request.user)
+
+    def perform_update(self, serializer):
+        """
+        Сохраняет курс и отправляет уведомления подписчикам.
+        """
+        course = serializer.save()
+        send_course_update_email_task.delay(course.id)
 
     def get_permissions(self):
         """
@@ -125,6 +132,11 @@ class LessonUpdateAPIView(generics.UpdateAPIView):
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
+
+    def perform_update(self, serializer):
+        lesson = serializer.save()
+        course = lesson.course
+        send_course_update_email_task.delay(course.id)
 
 
 class LessonDestroyAPIView(generics.DestroyAPIView):
