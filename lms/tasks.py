@@ -13,7 +13,7 @@ User = get_user_model()
 
 
 @shared_task
-def send_course_update_email_task(course_id: int) -> None:
+def send_course_update_email_task(course_id: int) -> str:
     """
     Отправляет уведомления подписанным пользователям об обновлении курса.
     """
@@ -21,22 +21,20 @@ def send_course_update_email_task(course_id: int) -> None:
 
     subscriptions = Subscription.objects.filter(course=course).select_related("user")
 
-    emails: list[str] = [
-        sub.user.email
-        for sub in subscriptions
-        if sub.user.email
-    ]
+    emails = [sub.user.email for sub in subscriptions if sub.user.email]
 
     if not emails:
-        return
+        return "Нет подписчиков"
 
     send_mail(
         subject=f"Обновление курса: {course.name}",
         message=f'Материалы курса "{course.name}" обновлены.',
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=emails,
-        fail_silently=True,
+        fail_silently=False,
     )
+
+    return f"Письма отправлены: {len(emails)}"
 
 
 @shared_task
