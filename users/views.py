@@ -11,11 +11,20 @@ from config import settings
 from lms.models import Course
 from users.models import Payment, Subscription, User
 from users.permissions import IsSelf
-from users.serializers import (PaymentCreateSerializer, PaymentSerializer,
-                               SubscriptionSerializer, UserCreateSerializer,
-                               UserPublicSerializer, UserSerializer)
-from users.services import (create_stripe_price, create_stripe_product,
-                            create_stripe_session, retrieve_stripe_session)
+from users.serializers import (
+    PaymentCreateSerializer,
+    PaymentSerializer,
+    SubscriptionSerializer,
+    UserCreateSerializer,
+    UserPublicSerializer,
+    UserSerializer,
+)
+from users.services import (
+    create_stripe_price,
+    create_stripe_product,
+    create_stripe_session,
+    retrieve_stripe_session,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
