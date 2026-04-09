@@ -1,162 +1,293 @@
-# Learning Machine
+# 📚 Learning Machine — LMS Backend (Django + DRF)
 
-Backend-проект LMS (Learning Management System), реализованный на Django и Django REST Framework.
-
-Проект представляет собой серверную часть SPA-приложения и возвращает данные в формате JSON.
+Backend-приложение для платформы онлайн-обучения. Реализует управление курсами, уроками, оплатами и подписками, а также асинхронные задачи с использованием Celery.
 
 ---
 
-## 📌 Описание проекта
+# 🚀 Технологический стек
 
-В рамках задания реализована базовая архитектура LMS-системы, в которой:
-
-- Пользователи могут быть зарегистрированы в системе (кастомная модель пользователя).
-- Создаются курсы.
-- Создаются уроки, которые могут быть привязаны к курсу.
-- Реализован полный CRUD для курсов и уроков.
-- В детальном представлении курса выводится количество уроков и список всех уроков курса.
-- Добавлена модель платежей (оплата курса или отдельного урока).
-- Реализован API эндпоинт для просмотра списка платежей с фильтрацией и сортировкой.
-- В профиле пользователя выводится история платежей.
-
----
-
-## 🛠 Используемые технологии
-
-- Python
-- Django
-- Django REST Framework
-- PostgreSQL
-- Poetry
-- Pillow
-- python-dotenv
+* Python 3.10+
+* Django
+* Django REST Framework
+* PostgreSQL
+* Redis
+* Celery + Celery Beat
+* Docker, Docker Compose
+* SimpleJWT (аутентификация)
+* drf-yasg / Swagger (документация API)
 
 ---
 
-## ⚙️ Установка и запуск
+# ⚙️ Функциональность
 
-### 1. Клонировать репозиторий
+## 📦 Основной функционал
 
-```bash
-git clone https://github.com/newfatto/learning_machine.git
-cd learning_machine
-```
+* CRUD для курсов и уроков
+* Привязка уроков к курсам
+* Ограничение доступа (владелец / модератор)
+* Подписка на обновления курсов
+* Платежи (интеграция со Stripe)
+* Публичные и приватные данные пользователей
 
-### 2. Установить зависимости
+---
 
-```bash
-poetry install --no-root
-poetry env activate
-```
+## 🔐 Аутентификация
 
-### 3. Создать файл .env в корне проекта на основе .env.example
+* JWT (access + refresh)
+* Регистрация и авторизация пользователей
+* Разграничение прав доступа:
 
+  * пользователь
+  * модератор
+  * владелец объекта
 
-### 4. Применить миграции
+---
 
-```bash
-python manage.py migrate
-```
-### 5. Создать суперпользователя
+## 💳 Платежи
 
-```bash
-python manage.py createsuperuser
-```
+* Создание платежей за курс или урок
+* Генерация Stripe Checkout Session
+* Хранение:
 
-### 6. Запустить сервер
+  * суммы
+  * ссылки на оплату
+  * session_id
 
-```bash
-python manage.py runserver
+---
+
+## 🔔 Уведомления (Celery)
+
+Реализована асинхронная система задач:
+
+* Отправка уведомлений при обновлении курса
+* Проверка условий отправки (например, не чаще чем раз в 4 часа)
+* Фоновая обработка задач через Celery
+
+---
+
+## ⏰ Периодические задачи (Celery Beat)
+
+* Планировщик задач на базе `django_celery_beat`
+* Хранение расписаний в базе данных
+* Автоматический запуск задач по расписанию
+
+---
+
+# 🐳 Запуск через Docker
+
+## 📁 Структура сервисов
+
+* `web` — Django приложение
+* `db` — PostgreSQL
+* `redis` — брокер сообщений
+* `celery` — worker
+* `celery-beat` — планировщик задач
+
+---
+
+## 🔧 Переменные окружения (.env)
+
+Создайте файл `.env` в корне проекта:
+
+```env
+SECRET_KEY=your_secret_key
+DEBUG=False
+
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=123456
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_BACKEND=redis://redis:6379/0
 ```
 
 ---
 
-## Приложение users
+## ▶️ Запуск проекта
 
-### Пользователь (User)
+```bash
+docker compose up --build
+```
 
-Реализована кастомная модель пользователя:
-* Авторизация по email
-* Телефон
-* Город
-* Аватар
+или в фоне:
 
-### Платёж (Payment)
+```bash
+docker compose up -d --build
+```
 
-- user — ссылка на пользователя
-- payment_date — дата оплаты (auto_now_add)
-- course — оплаченный курс (nullable)
-- lesson — оплаченный урок (nullable)
-- payment — сумма оплаты (PositiveIntegerField, MinValueValidator(1))
-- payment_way — способ оплаты: cash / transfer
+---
 
+## 📊 Проверка статуса
 
+```bash
+docker compose ps
+```
 
-## Модели приложения LMS
+Ожидаемый результат:
 
-### Course (Курс)
+```
+web           Up
+db            Up (healthy)
+redis         Up
+celery        Up
+celery-beat   Up
+```
 
-* name — название
-* description — описание
-* preview — изображение превью
+---
 
-### Lesson (Урок)
-* name — название
-* description — описание
-* preview — изображение превью
-* video_link — ссылка на видео
-* course — внешний ключ к Course
+⚠️ Возможная проблема при первом запуске
 
-#### Связь:
+При первом запуске контейнер celery-beat может завершиться с ошибкой вида:
+```
+relation "django_celery_beat_..." does not exist
+```
+*Причина*
 
-* Один курс содержит много уроков
-* При удалении курса удаляются связанные уроки (CASCADE)
+Контейнер celery-beat стартует быстрее, чем Django успевает применить миграции (migrate), из-за чего необходимые таблицы ещё не созданы.
 
-### CRUD
-#### Course
+✅ Решение
 
-Реализован через ViewSet.
-Поддерживает: Получение списка, Получение одного курса, 
-Создание, Обновление, Удаление.
+После того как контейнер web завершил миграции, необходимо перезапустить celery-beat:
+```
+docker compose restart celery-beat
+```
+или:
+```
+docker compose up -d celery-beat
+```
+🔍 Проверка после исправления
+```
+docker compose ps
+```
 
-#### Lesson
+Контейнер celery-beat должен перейти в статус:
+```
+celery-beat   Up
+```
+## 🛑 Остановка
 
-Реализован через Generic-классы. Поддерживает: Получение списка, 
-Получение одного урока, Создание, Обновление, Удаление.
+```bash
+docker compose down
+```
 
+---
 
-## API эндпоинты
+# 🌐 API
+
+## 📄 Документация
+
+Swagger доступен по адресу:
+
+```
+http://localhost:8000/swagger/
+```
+
+или:
+
+```
+http://localhost:8000/redoc/
+```
+
+---
+
+## 🔑 Аутентификация
+
+Получение токена:
+
+```
+POST /login/
+```
+
+Обновление:
+
+```
+POST /token/refresh/
+```
+
+---
+
+## 📚 Основные эндпоинты
+
+👤 Пользователи
+```
+GET     /user/
+POST    /user/
+GET     /user/{id}/
+PUT     /user/{id}/
+DELETE  /user/{id}/
+```
 
 ### Курсы
-- `GET /courses/` — список курсов
-- `GET /courses/<id>/` — детальная информация о курсе (включая количество уроков и список уроков)
-- `POST /courses/` — создание курса
-- `PUT/PATCH /courses/<id>/` — обновление курса
-- `DELETE /courses/<id>/` — удаление курса
+
+```
+GET     /course/
+POST    /course/
+GET     /course/{id}/
+PUT     /course/{id}/
+DELETE  /course/{id}/
+```
+
+---
 
 ### Уроки
-- `GET /lessons/` — список уроков
-- `GET /lessons/<id>/` — детальная информация
-- `POST /lessons/` — создание
-- `PUT/PATCH /lessons/<id>/` — обновление
-- `DELETE /lessons/<id>/` — удаление
+
+```
+GET     /lessons/
+POST    /lesson/create/
+GET     /lesson/{id}/
+PUT     /lesson/update/{id}/
+DELETE  /lesson/delete/{id}/
+```
+
+---
 
 ### Платежи
-- `GET /payments/` — список платежей с фильтрацией и сортировкой
 
-#### Фильтрация и сортировка платежей
+```
+GET     /payments/
+POST    /payment/create/
+GET     /payment/{id}/
+PUT     /payment/update/{id}/
+DELETE  /payment/delete/{id}/
+```
 
-- Сортировка по дате оплаты:
-  - `GET /payments/?ordering=payment_date`
-  - `GET /payments/?ordering=-payment_date`
+---
 
-- Фильтрация по курсу:
-  - `GET /payments/?course=<course_id>`
+# ⚡ Особенности реализации
 
-- Фильтрация по уроку:
-  - `GET /payments/?lesson=<lesson_id>`
+* Разделение логики:
 
-- Фильтрация по способу оплаты:
-  - `GET /payments/?payment_way=cash`
-  - `GET /payments/?payment_way=transfer`
+  * `services.py` — бизнес-логика
+  * `serializers.py` — валидация и трансформация данных
+  * `views.py` — API
 
+* Гибкая система прав доступа
+* Асинхронные задачи через Celery
+
+---
+
+# 🧠 Важные архитектурные решения
+
+* Использование Docker для изоляции среды
+* Redis как брокер для Celery
+* PostgreSQL как основная база данных
+* Разделение контейнеров по ролям
+* Использование переменных окружения для конфигурации
+
+---
+
+# 📌 Примечания
+
+* В Docker нельзя использовать `localhost` для подключения к другим сервисам
+* Для связи используется имя сервиса:
+
+  * Postgres → `db`
+  * Redis → `redis`
+* Все зависимости поднимаются через Docker Compose
+
+---
+
+
+---
