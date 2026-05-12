@@ -1,8 +1,5 @@
-from typing import Any
-
 from rest_framework import serializers
 
-from lms.models import Course, Lesson
 from users.models import Payment, Subscription, User
 
 
