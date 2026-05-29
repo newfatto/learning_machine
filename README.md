@@ -1,6 +1,13 @@
 # 📚 Learning Machine — LMS Backend (Django + DRF)
 
-Backend-приложение для платформы онлайн-обучения. Реализует управление курсами, уроками, оплатами и подписками, а также асинхронные задачи с использованием Celery.
+# **Learning Machine** — backend API для платформы онлайн-обучения на Django REST Framework.  
+Проект реализует управление курсами, уроками, пользователями, подписками и оплатами, а также использует асинхронные задачи для уведомлений и фоновой обработки.
+
+## Описание проекта
+
+Learning Machine разработан как учебный backend-проект, приближенный к реальной LMS-системе. Пользователь может регистрироваться, получать JWT-токены, работать с курсами и уроками в зависимости от прав доступа, оформлять оплату через Stripe и подписываться на обновления курсов.
+
+Проект демонстрирует ключевые навыки backend-разработки на Django и DRF: проектирование REST API, работу с PostgreSQL, разграничение прав доступа, интеграцию с внешним платёжным сервисом, настройку Celery/Redis, Docker Compose и автоматическую документацию API через Swagger/ReDoc.
 
 ---
 
@@ -15,6 +22,24 @@ Backend-приложение для платформы онлайн-обучен
 * Docker, Docker Compose
 * SimpleJWT (аутентификация)
 * drf-yasg / Swagger (документация API)
+
+---
+
+## Что демонстрирует проект
+
+- Проектирование REST API на Django REST Framework.
+- Работа с моделями, сериализаторами, views/viewsets и permissions.
+- JWT-аутентификация через SimpleJWT.
+- Разграничение доступа: пользователь, владелец объекта, модератор.
+- CRUD для курсов, уроков, пользователей и платежей.
+- Интеграция со Stripe для создания платёжных сессий.
+- Работа с PostgreSQL.
+- Асинхронные задачи через Celery.
+- Использование Redis как брокера сообщений.
+- Периодические задачи через Celery Beat.
+- Документация API через Swagger/ReDoc.
+- Контейнеризация проекта через Docker и Docker Compose.
+- Настройка переменных окружения.
 
 ---
 
@@ -93,9 +118,9 @@ Backend-приложение для платформы онлайн-обучен
 SECRET_KEY=your_secret_key
 DEBUG=False
 
-POSTGRES_DB=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=123456
+POSTGRES_DB=postgres_db_name
+POSTGRES_USER=postgres_username
+POSTGRES_PASSWORD=your_password
 POSTGRES_HOST=db
 POSTGRES_PORT=5432
 
@@ -137,35 +162,7 @@ celery-beat   Up
 
 ---
 
-⚠️ Возможная проблема при первом запуске
 
-При первом запуске контейнер celery-beat может завершиться с ошибкой вида:
-```
-relation "django_celery_beat_..." does not exist
-```
-*Причина*
-
-Контейнер celery-beat стартует быстрее, чем Django успевает применить миграции (migrate), из-за чего необходимые таблицы ещё не созданы.
-
-✅ Решение
-
-После того как контейнер web завершил миграции, необходимо перезапустить celery-beat:
-```
-docker compose restart celery-beat
-```
-или:
-```
-docker compose up -d celery-beat
-```
-🔍 Проверка после исправления
-```
-docker compose ps
-```
-
-Контейнер celery-beat должен перейти в статус:
-```
-celery-beat   Up
-```
 ## 🛑 Остановка
 
 ```bash
@@ -289,5 +286,34 @@ DELETE  /payment/delete/{id}/
 
 ---
 
+⚠️ Возможная проблема при первом запуске
+
+При первом запуске контейнер celery-beat может завершиться с ошибкой вида:
+```
+relation "django_celery_beat_..." does not exist
+```
+*Причина*
+
+Контейнер celery-beat стартует быстрее, чем Django успевает применить миграции (migrate), из-за чего необходимые таблицы ещё не созданы.
+
+✅ Решение
+
+После того как контейнер web завершил миграции, необходимо перезапустить celery-beat:
+```
+docker compose restart celery-beat
+```
+или:
+```
+docker compose up -d celery-beat
+```
+🔍 Проверка после исправления
+```
+docker compose ps
+```
+
+Контейнер celery-beat должен перейти в статус:
+```
+celery-beat   Up
+```
 
 ---
